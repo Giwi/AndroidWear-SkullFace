@@ -1,0 +1,51 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {}
+    }
+    afterEvaluate {
+        def propsFile = rootProject.file('../keystore.properties')
+        def configName = 'release'
+
+        if (propsFile.exists() && android.signingConfigs.hasProperty(configName)) {
+            def props = new Properties()
+            props.load(new FileInputStream(propsFile))
+            android.signingConfigs[configName].storeFile = rootProject.file(props['storeFile'])
+            android.signingConfigs[configName].storePassword = props['storePassword']
+            android.signingConfigs[configName].keyAlias = props['keyAlias']
+            android.signingConfigs[configName].keyPassword = props['keyPassword']
+        }
+    }
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
+    defaultConfig {
+        applicationId "giwi.org.skullface"
+        minSdkVersion 9
+        targetSdkVersion 23
+        versionCode 6
+        versionName '1.0'
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.google.android.gms:play-services:8.1.0'
+    compile 'com.google.android.gms:play-services-ads:8.1.0'
+    compile 'com.google.android.gms:play-services-analytics:8.1.0'
+    compile 'com.google.android.gms:play-services-identity:8.1.0'
+    compile 'com.google.android.gms:play-services-gcm:8.1.0'
+    wearApp project(':wear')
+}
